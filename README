@@ -1,0 +1,41 @@
+A convenience method. In our Rails model tests, we often had:
+
+```ruby
+class ThingTest < ActiveSupport::TestCase
+  def new_thing(attributes = {})
+    ...
+    
+    thing = Thing.new(attributes)
+    thing.valid?  # Allows us to use errors method on newly-created things.
+    thing
+  end
+  
+  def some_test
+    assert_equal ["an error message"], new_thing(:bogus => "attributes").errors[:base]
+  end
+  
+  ...
+end
+```
+
+Well, this part is ugly:
+
+```ruby
+thing = Thing.new(attributes)
+thing.valid?  # Allows us to use errors method on newly-created things.
+thing
+```
+
+We would like instead to say:
+
+```ruby
+Thing.new(attributes).after_sending {valid?}
+```
+
+This is similar to the standard method Object#tap, but has a better name and better syntax.
+
+We also support this syntax, but are not sure we like it:
+
+```ruby
+Thing.new(attributes).after_sending.valid?
+```
